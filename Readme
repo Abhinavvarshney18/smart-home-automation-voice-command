@@ -1,0 +1,25 @@
+# AbhiRaj — Backend (FastAPI + MQTT + Intent Evaluator)
+
+Purpose
+- FastAPI backend for voice-command home automation.
+- Provides intent classification and publishes device commands to MQTT.
+
+Quickstart (Windows PowerShell)
+1. Create virtualenv:
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+2. Install:
+   pip install -r requirements.txt
+3. Run:
+   uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+4. Health:
+   GET http://localhost:8000/health
+5. Predict:
+   POST http://localhost:8000/predict  JSON: {"text":"turn on the light"}
+
+Branching
+- Work on branch `user/abhiraj`. Commit small, descriptive changes.
+
+Notes
+- Configure MQTT broker via ENV: MQTT_BROKER, MQTT_PORT.
+- This repo is scoped to backend responsibilities for Avhinav integration.
