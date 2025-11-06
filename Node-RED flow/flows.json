@@ -1,0 +1,59 @@
+[
+  {
+    "id": "mqtt-in",
+    "type": "mqtt in",
+    "z": "flow1",
+    "name": "Home Commands",
+    "topic": "home/commands",
+    "qos": "0",
+    "broker": "mqtt-broker",
+    "x": 160,
+    "y": 140,
+    "wires": [["fn-intent"]]
+  },
+  {
+    "id": "fn-intent",
+    "type": "function",
+    "z": "flow1",
+    "name": "Map Intent → Relay",
+    "func": "let payload = msg.payload;\n// Expect JSON string\nlet obj = (typeof payload === 'string') ? JSON.parse(payload) : payload;\n// obj.intent / obj.text or obj.action\nlet out = {};\nif (obj.intent && obj.intent === 'light_on') {\n  out = {topic:'home/device/relay', payload: JSON.stringify({device:'relay1', action:'on'})};\n} else if (obj.intent && obj.intent === 'light_off') {\n  out = {topic:'home/device/relay', payload: JSON.stringify({device:'relay1', action:'off'})};\n} else if (obj.action) {\n  // passthrough\n  out = {topic:'home/device/relay', payload: JSON.stringify({device:'relay1', action:obj.action})};\n} else {\n  return null;\n}\nreturn out;",
+    "outputs": 1,
+    "x": 380,
+    "y": 140,
+    "wires": [["mqtt-out"]]
+  },
+  {
+    "id": "mqtt-out",
+    "type": "mqtt out",
+    "z": "flow1",
+    "name": "Device Relay",
+    "topic": "home/device/relay",
+    "qos": "",
+    "retain": "",
+    "broker": "mqtt-broker",
+    "x": 620,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "inject-on",
+    "type": "inject",
+    "z": "flow1",
+    "name": "Simulate light_on",
+    "props": [{"p":"payload"},{"p":"topic","vt":"str"}],
+    "payload":"{\"intent\":\"light_on\"}",
+    "payloadType":"json",
+    "topic":"",
+    "x":160,
+    "y":60,
+    "wires":[["fn-intent"]]
+  },
+  {
+    "id": "mqtt-broker",
+    "type": "mqtt-broker",
+    "name": "Local Mosquitto",
+    "broker": "mosquitto",
+    "port": "1883",
+    "clientid": ""
+  }
+]
