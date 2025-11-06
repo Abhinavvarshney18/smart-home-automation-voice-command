@@ -1,0 +1,27 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate JSON node-red flows
+        run: |
+          python - <<'PY'
+          import json, sys
+          p="node-red/flows.json"
+          try:
+            with open(p) as f:
+              json.load(f)
+          except Exception as e:
+            print("Invalid JSON:", e)
+            sys.exit(1)
+          print("Node-RED flows.json OK")
+          PY
+  build:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build docker-compose images
+        run: docker-compose build --parallel
